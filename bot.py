@@ -5,7 +5,6 @@ from tg_token import TOKEN
 import asyncio
 import os, os.path, glob
 
-
 bot = Bot(TOKEN)
 dp = Dispatcher(bot)
 
@@ -35,16 +34,12 @@ async def cmd_start(message: types.Message):
     profile = L.check_profile_id(username)
     print(profile.userid)
     await message.answer("Please wait... ⏳")
-
+    
     profile = L.check_profile_id(username)
-
     L.download_stories(userids=[profile.userid],filename_target='{}'.format(profile.username))
-
     dirname = str(username)
-
-    print("===================================================")
+ 
     print('path: ', dirname)
-    print("===================================================")
     await asyncio.sleep(1)
     media = types.MediaGroup()
     await types.ChatActions.upload_photo()
@@ -65,7 +60,6 @@ async def cmd_start(message: types.Message):
     await message.reply_media_group(media=media)
 
 
-
 ''' Get Help '''
 @dp.message_handler(commands="help")
 async def cmd_start(message: types.Message):
@@ -76,6 +70,6 @@ async def cmd_start(message: types.Message):
       ), parse_mode="HTML"
   )
 
-
+  
 if __name__ == '__main__':
   executor.start_polling(dp, skip_updates=True)
