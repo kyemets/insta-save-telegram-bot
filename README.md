@@ -33,3 +33,5 @@ _aiogram_ is also available in Arch Linux Repository, so you can install this fr
 - `TOKEN` — Telegram bot token
 - `username` — Instagram username account 
 - `password` — Instagram password account
+
+## P.S. ⚠️ The bot does not work with closed instagram profiles ⚠️ 
