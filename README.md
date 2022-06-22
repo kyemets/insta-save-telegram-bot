@@ -1,4 +1,4 @@
-﻿# insta-save-tg telegram bot based on [aiogram](https://aiogram.dev/) and [instaloader](https://github.com/instaloader/instaloader)  
+﻿# insta-save-telegram-bot based on [aiogram](https://aiogram.dev/) and [instaloader](https://github.com/instaloader/instaloader)  
 
 ## telegram bot can be tested [here](https://t.me/igsavetgbot)
 ---
