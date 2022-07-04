@@ -4,6 +4,12 @@ from instaloader import Instaloader, Profile
 from tg_token import TOKEN
 import asyncio
 import os, os.path, glob
+from keyboards import *
+from aiogram.types import ReplyKeyboardRemove, \
+    ReplyKeyboardMarkup, KeyboardButton, \
+    InlineKeyboardMarkup, InlineKeyboardButton
+import keyboards as kb
+
 
 bot = Bot(TOKEN)
 dp = Dispatcher(bot)
@@ -60,15 +66,18 @@ async def cmd_start(message: types.Message):
     await message.reply_media_group(media=media)
 
 
+help_message = text(
+    "Available commands:\n",
+    "/start - start",
+    "/stories - get a stories",
+    "/sub - get a subscriptions",
+    sep="\n"
+)
+
 ''' Get Help '''
-@dp.message_handler(commands="help")
-async def cmd_start(message: types.Message):
-  await message.answer(
-    fmt.text(
-      fmt.text("/stories — get a stories"),
-        sep="\n"
-      ), parse_mode="HTML"
-  )
+@dp.message_handler(commands=['help'])
+async def process_help_command(message: types.Message):
+    await message.reply(help_message)
 
   
 if __name__ == '__main__':
