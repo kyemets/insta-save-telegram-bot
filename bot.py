@@ -1,7 +1,8 @@
 from aiogram import Bot, Dispatcher, executor, types, executor
 import aiogram.utils.markdown as fmt
-from instaloader import Instaloader, Profile 
+from instaloader import Instaloader 
 from tg_token import TOKEN
+from insta_config import USERNAME, PASSWORD
 import asyncio
 import os, os.path, glob
 import keyboard as kb
@@ -11,7 +12,7 @@ bot = Bot(TOKEN)
 dp = Dispatcher(bot)
 
 L = Instaloader()
-L.login("username", "password")
+L.login(USERNAME, PASSWORD)
 
 
 ''' Command Start '''
@@ -27,15 +28,16 @@ async def cmd_start(message: types.Message):
 @dp.message_handler(commands="stories")
 async def cmd_start(message: types.Message):
   await message.answer("Input a username or send profile link")
+  URL = 'https://www.instagram.com/'
 
   @dp.message_handler()
   async def get_username(message: types.Message):
     get_username = message.text
-    username = get_username.replace('https://www.instagram.com/', '').replace('/', '')
+    username = get_username.replace(URL, '').replace('/', '')
     print(username)
     profile = L.check_profile_id(username)
     print(profile.userid)
-    await message.answer("Please wait... ⏳")
+    await message.answer("User found, please wait... ⏳", disable_notification=True)
     
     profile = L.check_profile_id(username)
     L.download_stories(userids=[profile.userid],filename_target='{}'.format(profile.username))
@@ -47,7 +49,7 @@ async def cmd_start(message: types.Message):
     await types.ChatActions.upload_photo()
     os.chdir(dirname)
 
-    # send .jpg photo
+    # send photo
     for file in glob.glob("*.jpg"):
       print(file)
       media.attach_photo(types.InputFile(file))
@@ -55,7 +57,7 @@ async def cmd_start(message: types.Message):
     media = types.MediaGroup()
     await types.ChatActions.upload_video()
 
-    # send .mp4 video
+    # send video
     for file in glob.glob("*.mp4"):
       print(file)
       media.attach_video(types.InputFile(file))

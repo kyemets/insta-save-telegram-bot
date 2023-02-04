@@ -1,1 +1,2 @@
-TOKEN = "telegram_bot_token"
+# telegram bot token
+TOKEN = ""
