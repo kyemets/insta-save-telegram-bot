@@ -14,6 +14,8 @@ dp = Dispatcher(bot)
 L = Instaloader()
 L.login(USERNAME, PASSWORD)
 
+URL = 'https://www.instagram.com/'
+
 
 ''' Command Start '''
 @dp.message_handler(commands="start")
@@ -28,7 +30,6 @@ async def cmd_start(message: types.Message):
 @dp.message_handler(commands="stories")
 async def cmd_start(message: types.Message):
   await message.answer("Input a username or send profile link")
-  URL = 'https://www.instagram.com/'
 
   @dp.message_handler()
   async def get_username(message: types.Message):
@@ -64,12 +65,51 @@ async def cmd_start(message: types.Message):
     await message.reply_media_group(media=media)
 
 
+''' Download posts '''
+@dp.message_handler(commands="posts")
+async def cmd_start(message: types.Message):
+  await message.answer("Input a username or send profile link")
+
+  @dp.message_handler()
+  async def get_username(message: types.Message):
+    get_username = message.text
+    username = get_username.replace(URL, '').replace('/', '')
+    print(username)
+    profile = L.check_profile_id(username)
+    await message.answer("User found, please wait... ⏳", disable_notification=True)
+    
+    profile = L.check_profile_id(username)
+    L.download_profile(profile)
+    dirname = str(username)
+ 
+    print('path: ', dirname)
+    await asyncio.sleep(1)
+    media = types.MediaGroup()
+    await types.ChatActions.upload_photo()
+    os.chdir(dirname)
+
+    # send photo
+    for file in glob.glob("*.jpg"):
+      print(file)
+      media.attach_photo(types.InputFile(file))
+    await message.reply_media_group(media=media)
+    media = types.MediaGroup()
+    await types.ChatActions.upload_video()
+
+    # send video
+    for file in glob.glob("*.mp4"):
+      print(file)
+      media.attach_video(types.InputFile(file))
+    await message.reply_media_group(media=media)
+
+
 ''' Get Help '''
 @dp.message_handler(commands="help")
 async def cmd_start(message: types.Message):
   await message.answer(
     fmt.text(
       fmt.text("/stories — get a stories"),
+      fmt.text("/posts — get a posts"),
         sep="\n"
       ), parse_mode="HTML"
   )
