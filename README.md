@@ -4,7 +4,10 @@
 ---
 
 # Installation
-1. Clone this repo: `git clone https://github.com/kyemets/insta-save-telegram-bot.git`
+1. Clone this repo: 
+`git clone https://github.com/kyemets/insta-save-telegram-bot.git`
+
+2. Install Aiogram
 
 # Aiogram
 ## Using PIP
