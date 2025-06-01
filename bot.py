@@ -46,7 +46,7 @@ API_TIMEOUT = 30
 
 @dataclass
 class UserSettings:
-    """User settings data class."""
+    """user settings data class"""
     auto_enabled: bool = False
     interval: int = 3
     last_check: Optional[str] = None
@@ -65,7 +65,7 @@ class UserSettings:
 
 @dataclass
 class StoryData:
-    """Story data structure."""
+    """story data structure"""
     media_type: str
     source: str
     timestamp: Optional[str] = None
@@ -73,7 +73,7 @@ class StoryData:
 
 @dataclass
 class UserInfo:
-    """User info data structure."""
+    """user info data structure"""
     username: str
     full_name: Optional[str]
     profile_pic_url: str
@@ -84,7 +84,7 @@ class UserInfo:
 
 
 class SettingsManager:
-    """Manages user settings with proper error handling."""
+    """manages user settings with proper error handling"""
     
     def __init__(self, settings_path: Path):
         self.settings_path = settings_path
@@ -96,7 +96,7 @@ class SettingsManager:
             self.settings_path.write_text('{}')
     
     def get_all_settings(self) -> Dict[str, Dict]:
-        """Get all user settings."""
+        """get all user settings"""
         try:
             return json.loads(self.settings_path.read_text())
         except (json.JSONDecodeError, FileNotFoundError) as e:
@@ -104,13 +104,13 @@ class SettingsManager:
             return {}
     
     def get_user_settings(self, user_id: int) -> UserSettings:
-        """Get settings for specific user."""
+        """get settings for specific user"""
         all_settings = self.get_all_settings()
         user_data = all_settings.get(str(user_id), {})
         return UserSettings.from_dict(user_data)
     
     def update_user_setting(self, user_id: int, **kwargs) -> None:
-        """Update user settings."""
+        """update user settings"""
         all_settings = self.get_all_settings()
         user_id_str = str(user_id)
         
@@ -126,11 +126,11 @@ class SettingsManager:
 
 
 class AuthTokenManager:
-    """Manages authentication token generation."""
+    """manages authentication token generation"""
     
     @staticmethod
     def build_auth_token(username: str) -> str:
-        """Build authentication token for username."""
+        """build authentication token for username"""
         if not username or not username.strip():
             raise ValueError("Username cannot be empty")
         
@@ -144,11 +144,11 @@ class AuthTokenManager:
 
 
 class URLDecoder:
-    """Handles URL decoding operations."""
+    """handles URL decoding operations"""
     
     @staticmethod
     def decode_embed_url(embed_url: str) -> str:
-        """Decode embedded URL."""
+        """decode embedded URL"""
         if not embed_url:
             return ""
         
@@ -176,13 +176,13 @@ class URLDecoder:
 
 
 class BrowserManager:
-    """Manages browser operations with proper resource cleanup."""
+    """manages browser operations with proper resource cleanup"""
     
     def __init__(self):
         self.options = self._get_chrome_options()
     
     def _get_chrome_options(self) -> Options:
-        """Get Chrome options for headless browsing."""
+        """get Chrome options for headless browsing"""
         options = Options()
         options.add_argument("--headless")
         options.add_argument("--disable-gpu")
@@ -195,12 +195,12 @@ class BrowserManager:
         return options
     
     async def trigger_browser_async(self, username: str) -> None:
-        """Trigger browser in async context."""
+        """trigger browser in async context"""
         loop = asyncio.get_event_loop()
         await loop.run_in_executor(None, self._trigger_browser_sync, username)
     
     def _trigger_browser_sync(self, username: str) -> None:
-        """Synchronous browser trigger."""
+        """synchronous browser trigger"""
         logger.info(f"Launching browser for @{username}")
         
         try:
@@ -226,14 +226,14 @@ class BrowserManager:
 
 
 class APIClient:
-    """Handles API communication with proper error handling and retries."""
+    """handles API communication with proper error handling and retries"""
     
     def __init__(self):
         self.session_timeout = aiohttp.ClientTimeout(total=API_TIMEOUT)
     
     @asynccontextmanager
     async def _get_session(self):
-        """Get aiohttp session with proper configuration."""
+        """get aiohttp session with proper configuration"""
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
             "Content-Type": "application/x-www-form-urlencoded",
@@ -247,7 +247,7 @@ class APIClient:
             yield session
     
     async def fetch_story_data(self, auth_token: str) -> Dict[str, Any]:
-        """Fetch story data from API."""
+        """fetch story data from API"""
         try:
             async with self._get_session() as session:
                 data = {"auth": auth_token}
@@ -272,7 +272,7 @@ class APIClient:
             return {}
     
     async def wait_for_stories(self, auth_token: str, max_retries: int = MAX_RETRIES) -> Optional[Dict[str, Any]]:
-        """Wait for stories with exponential backoff."""
+        """wait for stories with exponential backoff"""
         for attempt in range(max_retries):
             delay = min(POLLING_DELAY * (2 ** (attempt // 3)), 30)  # Exponential backoff with cap
             
@@ -314,7 +314,7 @@ class StoryBot:
         self.dp.register_message_handler(self.handle_username, lambda msg: not msg.text.startswith("/"))
     
     async def cmd_start(self, message: types.Message) -> None:
-        """Handle /start command."""
+        """Handle /start command"""
         welcome_text = (
             "👋 *Welcome to Instagram Stories Bot!*\n\n"
             "🔍 Send me an Instagram username to view their stories anonymously.\n"
@@ -324,11 +324,11 @@ class StoryBot:
         await message.answer(welcome_text, parse_mode="Markdown")
     
     async def cmd_story(self, message: types.Message) -> None:
-        """Handle /story command."""
+        """handle /story command"""
         await message.answer("✍️ Enter the Instagram username (without @):")
     
     async def cmd_help(self, message: types.Message) -> None:
-        """Handle /help command."""
+        """handle /help command"""
         help_text = (
             "📖 *Available Commands:*\n\n"
             "🔍 `/story` - Request stories for a username\n"
@@ -344,7 +344,7 @@ class StoryBot:
         await message.answer(help_text, parse_mode="Markdown")
     
     async def handle_auto_controls(self, message: types.Message) -> None:
-        """Handle auto control commands."""
+        """handle auto control commands"""
         user_id = message.from_user.id
         command = message.text.split()[0]
         
@@ -370,7 +370,7 @@ class StoryBot:
             await message.answer(status_text, parse_mode="Markdown")
     
     async def set_interval(self, call: types.CallbackQuery) -> None:
-        """Handle interval setting callback."""
+        """handle interval setting callback"""
         try:
             interval = int(call.data.split(":")[1])
             self.settings_manager.update_user_setting(call.from_user.id, interval=interval)
@@ -385,7 +385,7 @@ class StoryBot:
             await call.answer("❌ Error setting interval")
     
     async def handle_username(self, message: types.Message) -> None:
-        """Handle username input."""
+        """handle username input"""
         username = self._validate_username(message.text)
         if not username:
             await message.answer("⚠️ Please provide a valid Instagram username.")
@@ -399,7 +399,7 @@ class StoryBot:
         await self._process_username(message, username)
     
     def _validate_username(self, text: str) -> Optional[str]:
-        """Validate and clean username."""
+        """validate and clean username"""
         if not text or not text.strip():
             return None
         
@@ -414,7 +414,7 @@ class StoryBot:
         return username
     
     async def _process_username(self, message: types.Message, username: str) -> None:
-        """Process username and fetch stories."""
+        """process username and fetch stories"""
         status_message = await message.answer(f"🔎 Looking up @{username}...")
         
         try:
@@ -438,7 +438,7 @@ class StoryBot:
             await status_message.edit_text(f"❌ Error occurred: {str(e)[:100]}")
     
     async def _send_stories(self, message: types.Message, data: Dict, status_message: types.Message) -> None:
-        """Send stories to user"""
+        """send stories to user"""
         user_info = data.get("user_info", {})
         stories = data.get("stories", [])
         
@@ -472,7 +472,7 @@ class StoryBot:
         await status_message.delete()
     
     async def _send_profile_info(self, message: types.Message, user_info: Dict) -> None:
-        """Send profile information."""
+        """send profile information"""
         profile_pic = self.url_decoder.decode_embed_url(user_info.get("profile_pic_url", ""))
         
         summary = (
@@ -499,7 +499,7 @@ class StoryBot:
             await message.answer(summary, parse_mode="Markdown")
     
     async def _send_single_story(self, message: types.Message, story: Dict, idx: int, total: int) -> None:
-        """Send a single story."""
+        """send a single story"""
         media_type = story.get("media_type")
         source = self.url_decoder.decode_embed_url(story.get("source", ""))
         caption = f"📖 Story {idx}/{total}"
@@ -529,7 +529,7 @@ class StoryBot:
             raise
     
     async def _show_interval_selection(self, message: types.Message) -> None:
-        """Show interval selection buttons."""
+        """show interval selection buttons"""
         keyboard = types.InlineKeyboardMarkup(row_width=3)
         buttons = [
             types.InlineKeyboardButton("1h", callback_data="interval:1"),
@@ -546,7 +546,7 @@ class StoryBot:
         )
     
     def run(self) -> None:
-        """Start the bot."""
+        """start the bot"""
         logger.info("🚀 Bot starting...")
         try:
             executor.start_polling(self.dp, skip_updates=True)
@@ -558,7 +558,7 @@ class StoryBot:
 
 
 def main():
-    """Main entry point."""
+    """main entry point"""
     if not TOKEN:
         logger.error("TOKEN not found. Please check tg_token.py")
         return
