@@ -1,2 +1,12 @@
-aiogram==2.20
-instaloader==4.9
+aiogram==2.25.1
+aiohttp==3.9.1
+selenium==4.15.2
+webdriver-manager==4.0.1
+python-dateutil==2.8.2
+pytest==7.4.3
+pytest-asyncio==0.21.1
+black==23.11.0
+flake8==6.1.0
+colorlog==6.8.0
+Pillow==10.1.0  # Image processing if needed
+requests==2.31.0  # Fallback HTTP client
