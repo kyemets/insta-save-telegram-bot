@@ -5,4 +5,4 @@ COPY . .
 
 RUN pip install -r requirements.txt
 
-CMD ["python", "storybot/bot/main.py"]
+CMD ["python", "-m", "storybot.bot.main"]
