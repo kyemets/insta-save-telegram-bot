@@ -1,0 +1,13 @@
+version: "3.9"
+services:
+  mongo:
+    image: mongo:6
+    restart: unless-stopped
+    volumes: [ "mongo_data:/data/db" ]
+  bot:
+    build: .
+    env_file: .env
+    depends_on: [ mongo ]
+    restart: unless-stopped
+volumes:
+  mongo_data:

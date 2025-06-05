@@ -1,12 +1,14 @@
-aiogram==2.25.1
-aiohttp==3.11.0b0
-selenium==4.15.2
-webdriver-manager==4.0.1
-python-dateutil==2.8.2
-pytest==7.4.3
-pytest-asyncio==0.21.1
-black==24.3.0
-flake8==6.1.0
-colorlog==6.8.0
-Pillow==10.3.0  # 
-requests==2.32.2 
+aiogram==3.*
+motor==3.*
+pydantic==2.*
+apscheduler==3.*
+pymongo==4.*          
+selenium==4.*
+undetected-chromedriver==3.*
+python-dotenv
+structlog
+uvicorn[standard]
+pytest
+pytest-asyncio
+pydantic-settings==2.*
+pydantic-settings==2.* 
