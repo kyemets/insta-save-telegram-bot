@@ -1,6 +1,6 @@
 FROM python:3.11
 
-WORKDIR /app
+WORKDIR /storybot/bot
 COPY . .
 
 RUN pip install -r requirements.txt
