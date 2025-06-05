@@ -2,12 +2,14 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import threading
 
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 
+from storybot.healthcheck import start_health_server
 from .config import settings
-from .handlers import story, auto, common        # ← reorder import list (optional)
+from .handlers import story, auto, common
 from .services.scheduler import start_scheduler
 
 log = logging.getLogger(__name__)
@@ -19,18 +21,20 @@ async def _on_startup() -> None:
 
 
 async def _run() -> None:
+    # Запускаем health-check сервер в отдельном потоке
+    threading.Thread(target=start_health_server, daemon=True).start()
+
+    # Запускаем Telegram-бота
     bot = Bot(
         token=settings.tg_token,
         default=DefaultBotProperties(parse_mode="HTML"),
     )
-
     dp = Dispatcher()
 
-    # REGISTER THE ROUTERS IN THIS ORDER  ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
-    dp.include_router(story.router)   # /story (must be checked first)
-    dp.include_router(auto.router)    # /auto_on, /auto_off, callbacks
-    dp.include_router(common.router)  # /start, /help, fallback “unknown command”
-    # ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑ END ORDER
+    # Порядок регистрации критичен
+    dp.include_router(story.router)
+    dp.include_router(auto.router)
+    dp.include_router(common.router)
 
     dp.startup.register(_on_startup)
     await dp.start_polling(bot)
