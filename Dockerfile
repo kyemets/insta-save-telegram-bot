@@ -9,4 +9,4 @@ COPY . .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-CMD ["python", "storybot/bot/main.py"]
+CMD ["python", "-m", "storybot.bot.main"]
