@@ -30,6 +30,10 @@ class BrowserManager:
         self._options.add_argument(
             "--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)"
         )
+        
+        chrome_binary = os.getenv("CHROME_BINARY")
+        if chrome_binary:
+            self._options.binary_location = chrome_binary
 
     async def trigger_browser_async(self, username: str) -> None:
         """Run _open_page in a thread-executor, limited by a semaphore."""
