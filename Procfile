@@ -1,1 +1,1 @@
-worker: python storybot/bot/bot.py
+worker: python storybot/bot/main.py
