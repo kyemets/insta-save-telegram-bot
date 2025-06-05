@@ -12,3 +12,4 @@ pytest
 pytest-asyncio
 pydantic-settings==2.*
 pydantic-settings==2.* 
+selenium
