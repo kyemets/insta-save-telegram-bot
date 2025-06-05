@@ -6,6 +6,7 @@ Launches a headless Chrome session so that anonstories prepares JSON for us.
 
 from __future__ import annotations
 
+
 import asyncio
 import logging
 import os
