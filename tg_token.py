@@ -1,2 +1,0 @@
-# telegram bot token
-TOKEN = ""
