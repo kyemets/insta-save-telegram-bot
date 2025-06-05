@@ -6,7 +6,6 @@ Launches a headless Chrome session so that anonstories prepares JSON for us.
 
 from __future__ import annotations
 
-
 import asyncio
 import logging
 import os
@@ -32,10 +31,9 @@ class BrowserManager:
         self._options.add_argument(
             "--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)"
         )
-        
-        chrome_binary = os.getenv("CHROME_BINARY")
-        if chrome_binary:
-            self._options.binary_location = chrome_binary
+
+        chrome_binary = os.getenv("CHROME_BINARY", "/usr/bin/google-chrome")
+        self._options.binary_location = chrome_binary
 
     async def trigger_browser_async(self, username: str) -> None:
         """Run _open_page in a thread-executor, limited by a semaphore."""
@@ -49,13 +47,16 @@ class BrowserManager:
         url = f"https://anonstories.com/view/{username}"
         log.debug("Headless Chrome → %s", url)
 
-        driver = uc.Chrome(options=self._options)
         try:
+            driver = uc.Chrome(options=self._options, driver_executable_path=None)
             driver.set_page_load_timeout(BROWSER_TIMEOUT)
             driver.get(url)
             driver.find_element("tag name", "body")  # wait for <body>
             log.debug("Page loaded for %s", username)
-        except Exception as exc:  # pylint: disable=broad-except
+        except Exception as exc:
             log.warning("Browser error for %s: %s", username, exc)
         finally:
-            driver.quit()
+            try:
+                driver.quit()
+            except Exception:
+                pass
