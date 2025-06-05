@@ -23,4 +23,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Добавляем ENV-путь к Chrome
 ENV CHROME_BINARY=/usr/bin/google-chrome
 
-CMD ["python", "storybot/bot/main.py"]
+CMD ["python", "-m", "storybot.bot.main"]
