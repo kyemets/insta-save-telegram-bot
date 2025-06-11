@@ -31,7 +31,6 @@ async def cmd_help(msg: Message) -> None:
     )
 
 
-# Fallback: any other slash-command that was not matched above
 @router.message(F.text.startswith("/"))
 async def unknown_command(msg: Message) -> None:
     await msg.answer("❓ Unknown command. Use /help for the list.")
