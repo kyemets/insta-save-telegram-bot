@@ -39,7 +39,6 @@ class AuthTokenManager:
         raw = f"-1::{uname}::{SHARED_SECRET}"
         b64 = base64.b64encode(raw.encode()).decode()
 
-        # url-safe replacements
         token = b64.replace("+", ".").replace("/", "_").replace("=", "-")
         log.debug("auth token generated for %s", uname)
         return token
