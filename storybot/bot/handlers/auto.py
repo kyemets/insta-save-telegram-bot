@@ -17,7 +17,6 @@ from .story import fetch_and_push_stories
 
 router = Router()
 
-# ───────────────────────────── interval keyboard ──────────────────────────
 
 
 def _interval_keyboard() -> InlineKeyboardMarkup:
@@ -35,7 +34,6 @@ def _interval_keyboard() -> InlineKeyboardMarkup:
     ]
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
-# ────────────────────────────────── commands ──────────────────────────────
 
 
 @router.message(Command("auto_on"))
