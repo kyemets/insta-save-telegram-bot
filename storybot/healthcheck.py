@@ -1,4 +1,3 @@
-# storybot/healthcheck.py
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
 class HealthCheckHandler(BaseHTTPRequestHandler):
