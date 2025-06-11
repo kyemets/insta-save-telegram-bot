@@ -32,7 +32,6 @@ from ..services.url_decoder import URLDecoder
 log = logging.getLogger(__name__)
 router = Router()
 
-# ───────────────────────── public API (used by auto.py) ────────────────────────────
 
 
 async def fetch_and_push_stories(user_id: int) -> None:
@@ -62,7 +61,6 @@ async def fetch_and_push_stories(user_id: int) -> None:
     await _process_username(_PseudoMsg(), status, profile.target_username)
 
 
-# ───────────────────────────── user-facing handlers ────────────────────────────────
 
 
 @router.message(Command("story"))
@@ -85,15 +83,12 @@ async def handle_username(msg: Message) -> None:
     success = await _process_username(msg, status, username)
 
     if success:
-        # show inline keyboard for interval selection
-        from .auto import _interval_keyboard  # local import → avoid cycle
+        from .auto import _interval_keyboard 
         await msg.answer(
             "⚙️ Choose an auto-check interval:",
             reply_markup=_interval_keyboard(),
         )
 
-
-# ────────────────────────────────── internal helpers ───────────────────────────────
 
 
 async def _process_username(
@@ -128,18 +123,17 @@ async def _process_username(
             await _send_single_story(requester, story, idx, len(stories))
             if idx < len(stories):
                 await asyncio.sleep(0.4)
-            # ➋  log statistics  ────────────────────────────────────────────
         await SettingsDAO.add_search(
 			user_id=requester.from_user.id,
 			username=username,
 			sent=len(stories),
 		)
-        # 
+        
 
         await status.delete()
         return True
 
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:  # noqa: BL
         log.exception("Failed to fetch %s: %s", username, exc)
         await status.edit_text("💥 An error occurred while fetching stories.")
         return False
