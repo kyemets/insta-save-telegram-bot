@@ -10,19 +10,18 @@ from typing import Any, Dict
 from motor.motor_asyncio import AsyncIOMotorCollection
 from pydantic import BaseModel, Field
 
-from .settings_dao import _get_client          # reuse singleton client
+from .settings_dao import _get_client        
 import logging
 
 log = logging.getLogger(__name__)
 
 
-# ───────────────────── helpers ──────────────────────
+
 
 def _get_collection() -> AsyncIOMotorCollection:
     """Lazy access to the stats collection."""
     coll = _get_client().get_default_database().stats
     if not hasattr(coll, "_index_created"):
-        # indexes once per process, after the real loop exists
         coll.create_index(
             [("user_id", 1), ("date", 1), ("target_username", 1)]
         )
@@ -32,7 +31,6 @@ def _get_collection() -> AsyncIOMotorCollection:
     return coll
 
 
-# ───────────────────── schema ───────────────────────
 
 class StatsRecord(BaseModel):
     user_id: int
@@ -43,7 +41,6 @@ class StatsRecord(BaseModel):
     sent: int = 0
 
 
-# ───────────────────── DAO ──────────────────────────
 
 class StatsDAO:
     """Append-only event logger."""
