@@ -41,7 +41,6 @@ class BrowserManager:
         async with _BROWSERS_SEMAPHORE:
             await loop.run_in_executor(None, self._open_page, username)
 
-    # internal -------------------------------------------------------------
 
     def _open_page(self, username: str) -> None:
         url = f"https://anonstories.com/view/{username}"
@@ -51,7 +50,7 @@ class BrowserManager:
             driver = uc.Chrome(options=self._options, driver_executable_path=None)
             driver.set_page_load_timeout(BROWSER_TIMEOUT)
             driver.get(url)
-            driver.find_element("tag name", "body")  # wait for <body>
+            driver.find_element("tag name", "body") 
             log.debug("Page loaded for %s", username)
         except Exception as exc:
             log.warning("Browser error for %s: %s", username, exc)
