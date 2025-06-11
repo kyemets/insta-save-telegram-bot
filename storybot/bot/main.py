@@ -21,17 +21,14 @@ async def _on_startup() -> None:
 
 
 async def _run() -> None:
-    # Запускаем health-check сервер в отдельном потоке
     threading.Thread(target=start_health_server, daemon=True).start()
 
-    # Запускаем Telegram-бота
     bot = Bot(
         token=settings.tg_token,
         default=DefaultBotProperties(parse_mode="HTML"),
     )
     dp = Dispatcher()
 
-    # Порядок регистрации критичен
     dp.include_router(story.router)
     dp.include_router(auto.router)
     dp.include_router(common.router)
