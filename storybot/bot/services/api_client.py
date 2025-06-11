@@ -27,7 +27,6 @@ class APIClient:
     def __init__(self, timeout: int = API_TIMEOUT) -> None:
         self._timeout = aiohttp.ClientTimeout(total=timeout)
 
-    # ─────────────────────────── session helper ──────────────────────────
 
     @asynccontextmanager
     async def _session(self):
@@ -44,7 +43,6 @@ class APIClient:
         ) as sess:
             yield sess
 
-    # ─────────────────────────── public API ──────────────────────────────
 
     async def fetch_story_data(self, auth_token: str) -> Dict[str, Any]:
         """Single POST request, returns raw JSON or empty dict on failure."""
@@ -58,7 +56,7 @@ class APIClient:
         except asyncio.TimeoutError:
             log.warning("anonstories request timed-out")
             return {}
-        except Exception as exc:  # pylint: disable=broad-except
+        except Exception as exc:  
             log.exception("anonstories error: %s", exc)
             return {}
 
