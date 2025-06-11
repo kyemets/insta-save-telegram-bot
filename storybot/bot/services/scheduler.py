@@ -15,9 +15,8 @@ from apscheduler.triggers.interval import IntervalTrigger
 
 log = logging.getLogger(__name__)
 
-# ---------------------------------------------------------------------------
 
-scheduler: AsyncIOScheduler = AsyncIOScheduler()  # created once
+scheduler: AsyncIOScheduler = AsyncIOScheduler() 
 
 
 def start_scheduler() -> None:
@@ -27,7 +26,6 @@ def start_scheduler() -> None:
         log.info("APScheduler started")
 
 
-# ---------------------------------------------------------------------------
 
 def _job_id(user_id: int) -> str:
     """Consistent job id format: user:123456"""
@@ -50,7 +48,6 @@ def schedule_user_job(user_id: int, hours: int, coroutine_callable) -> None:
     job_id = _job_id(user_id)
     trigger = IntervalTrigger(hours=hours)
 
-    # replace_existing=True ensures idempotency
     scheduler.add_job(
         coroutine_callable,
         trigger=trigger,
@@ -68,5 +65,5 @@ def remove_user_job(user_id: int) -> None:
     try:
         scheduler.remove_job(job_id)
         log.info("Removed auto-check for %s", user_id)
-    except Exception:  # job not found – silently ignore
+    except Exception:
         pass
