@@ -1,5 +1,6 @@
 
 # 📱 [InstaSave](https://t.me/igsavetgbot)
+[![Update README with user count](https://github.com/kyemets/insta-save-telegram-bot/actions/workflows/update-readme.yml/badge.svg)](https://github.com/kyemets/insta-save-telegram-bot/actions/workflows/update-readme.yml)
 
 User count: 
 
