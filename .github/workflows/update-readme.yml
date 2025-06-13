@@ -21,21 +21,36 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Run script and get count
+      - name: Run script and update stats
         id: get_count
         env:
           MONGO_URI: ${{ secrets.MONGO_URI }}
         run: |
-          COUNT=$(node userCount.js)
+          node userCount.js
+          COUNT=$(jq '.data[-1].count' user-stats.json)
           echo "count=$COUNT" >> $GITHUB_OUTPUT
           echo "✔ Count: $COUNT"
 
-      - name: Log value
+      - name: Generate chart URL
+        id: chart
         run: |
-          echo "✔ User count is: ${{ steps.get_count.outputs.count }}"
+          LABELS=$(jq -c '[.data[].date]' user-stats.json)
+          COUNTS=$(jq -c '[.data[].count]' user-stats.json)
+
+          CONFIG=$(jq -n \
+            --argjson labels "$LABELS" \
+            --argjson data "$COUNTS" \
+            '{type:"line",data:{labels:$labels,datasets:[{label:"Users",data:$data}]}}')
+
+          URL="https://quickchart.io/chart?c=$(node -e "console.log(encodeURIComponent(process.argv[1]))" "$CONFIG")"
+
+          echo "url=$URL" >> $GITHUB_OUTPUT
+          echo "✔ Chart URL: $URL"
 
       - name: Update README.md
-        run: sed -i "s/<USER_COUNT_PLACEHOLDER>/${{ steps.get_count.outputs.count }}/" README.md
+        run: |
+          sed -i "s|<USER_COUNT_PLACEHOLDER>|${{ steps.get_count.outputs.count }}|" README.md
+          sed -i "s|https://quickchart.io/chart?.*|${{ steps.chart.outputs.url }}|" README.md
 
       - name: Commit changes
         run: |
