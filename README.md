@@ -4,6 +4,10 @@
 
 ## User count: 70
 
+## 📈 User Growth
+![User Chart](https://quickchart.io/chart?c=<CHART_CONFIG_PLACEHOLDER>)
+
+
 A powerful Telegram bot that allows users to anonymously view Instagram Stories without logging into Instagram. Built with Python, aiogram, and Selenium for reliable story fetching and delivery.
 
 ![Python](https://img.shields.io/badge/python-v3.8+-blue.svg)
