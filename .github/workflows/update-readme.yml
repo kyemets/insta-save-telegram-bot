@@ -1,0 +1,38 @@
+name: Update README with user count
+
+on:
+  workflow_dispatch: 
+  schedule:
+    - cron: '0 0 * * *' 
+
+jobs:
+  update-readme:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install deps
+        run: npm install
+
+      - name: Run script and save count
+        id: get_count
+        run: |
+          echo "COUNT=$(node userCount.js)" >> $GITHUB_ENV
+
+      - name: Update README.md
+        run: |
+          sed -i "s/User count: .*/User count: $COUNT/" README.md
+
+      - name: Commit changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git commit -am "Update user count to $COUNT" || echo "No changes"
+          git push
