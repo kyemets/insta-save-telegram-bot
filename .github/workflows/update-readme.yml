@@ -21,36 +21,46 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Run script and update stats
+      - name: Run script and get count, update user-stats.json
         id: get_count
         env:
           MONGO_URI: ${{ secrets.MONGO_URI }}
         run: |
-          node userCount.js
-          COUNT=$(jq '.data[-1].count' user-stats.json)
+          # Получаем count из Node.js скрипта
+          COUNT=$(node userCount.js)
+          echo "✔ Count from DB: $COUNT"
+
+          STATS_FILE=user-stats.json
+          TODAY=$(date +'%Y-%m-%d')
+
+          # Создаём файл, если его нет
+          if [ ! -f "$STATS_FILE" ]; then
+            echo "[]" > "$STATS_FILE"
+            echo "✔ Created empty $STATS_FILE"
+          fi
+
+          # Обновляем или добавляем запись с сегодняшней датой
+          UPDATED_JSON=$(jq --arg date "$TODAY" --argjson count "$COUNT" '
+            (map(select(.date == $date)) | length) as $exists
+            | if $exists > 0 then
+                map(if .date == $date then .count = $count else . end)
+              else
+                . + [{date: $date, count: $count}]
+              end
+          ' "$STATS_FILE")
+
+          echo "$UPDATED_JSON" > "$STATS_FILE"
+          echo "✔ Updated $STATS_FILE with today's count"
+
+          # Передаём count в output для следующих шагов
           echo "count=$COUNT" >> $GITHUB_OUTPUT
-          echo "✔ Count: $COUNT"
 
-      - name: Generate chart URL
-        id: chart
+      - name: Log value
         run: |
-          LABELS=$(jq -c '[.data[].date]' user-stats.json)
-          COUNTS=$(jq -c '[.data[].count]' user-stats.json)
-
-          CONFIG=$(jq -n \
-            --argjson labels "$LABELS" \
-            --argjson data "$COUNTS" \
-            '{type:"line",data:{labels:$labels,datasets:[{label:"Users",data:$data}]}}')
-
-          URL="https://quickchart.io/chart?c=$(node -e "console.log(encodeURIComponent(process.argv[1]))" "$CONFIG")"
-
-          echo "url=$URL" >> $GITHUB_OUTPUT
-          echo "✔ Chart URL: $URL"
+          echo "✔ User count is: ${{ steps.get_count.outputs.count }}"
 
       - name: Update README.md
-        run: |
-          sed -i "s|<USER_COUNT_PLACEHOLDER>|${{ steps.get_count.outputs.count }}|" README.md
-          sed -i "s|https://quickchart.io/chart?.*|${{ steps.chart.outputs.url }}|" README.md
+        run: sed -i "s/<USER_COUNT_PLACEHOLDER>/${{ steps.get_count.outputs.count }}/" README.md
 
       - name: Commit changes
         run: |
