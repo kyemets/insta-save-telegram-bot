@@ -1,6 +1,14 @@
+import dotenv from "dotenv";
 import { MongoClient } from "mongodb";
 
+dotenv.config();
+
 const uri = process.env.MONGO_URI;
+if (!uri) {
+  console.error("❌ MONGO_URI is not defined in .env");
+  process.exit(1);
+}
+
 const client = new MongoClient(uri);
 
 (async () => {
