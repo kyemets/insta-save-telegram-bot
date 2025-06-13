@@ -18,7 +18,7 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install dotenv (единственная внешняя зависимость)
+      - name: Install dotenv
         run: npm install dotenv
 
       - name: Run script and save count
@@ -28,7 +28,7 @@ jobs:
 
       - name: Update README.md
         run: |
-          sed -i "s/User count: .*/User count: $COUNT/" README.md
+          sed -i "s/<USER_COUNT_PLACEHOLDER>/$COUNT/" README.md
 
       - name: Commit changes
         run: |
