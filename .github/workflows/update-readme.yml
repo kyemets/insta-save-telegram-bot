@@ -1,4 +1,4 @@
-name: Update README with user count
+name: Update README with user count and graph
 
 on:
   workflow_dispatch:
@@ -26,20 +26,20 @@ jobs:
         env:
           MONGO_URI: ${{ secrets.MONGO_URI }}
         run: |
-          # Получаем count из Node.js скрипта
+          # Get count from DB via Node.js script
           COUNT=$(node userCount.js)
           echo "✔ Count from DB: $COUNT"
 
           STATS_FILE=user-stats.json
           TODAY=$(date +'%Y-%m-%d')
 
-          # Создаём файл, если его нет
+          # Create file if missing
           if [ ! -f "$STATS_FILE" ]; then
             echo "[]" > "$STATS_FILE"
             echo "✔ Created empty $STATS_FILE"
           fi
 
-          # Обновляем или добавляем запись с сегодняшней датой
+          # Update or add today's entry
           UPDATED_JSON=$(jq --arg date "$TODAY" --argjson count "$COUNT" '
             (map(select(.date == $date)) | length) as $exists
             | if $exists > 0 then
@@ -52,19 +52,51 @@ jobs:
           echo "$UPDATED_JSON" > "$STATS_FILE"
           echo "✔ Updated $STATS_FILE with today's count"
 
-          # Передаём count в output для следующих шагов
+          # Export count for next steps
           echo "count=$COUNT" >> $GITHUB_OUTPUT
 
       - name: Log value
         run: |
           echo "✔ User count is: ${{ steps.get_count.outputs.count }}"
 
-      - name: Update README.md
-        run: sed -i "s/<USER_COUNT_PLACEHOLDER>/${{ steps.get_count.outputs.count }}/" README.md
+      - name: Generate QuickChart config and URL encode
+        id: gen_chart_config
+        run: |
+          # Create QuickChart config JSON from user-stats.json
+          jq -c '
+            {
+              type: "line",
+              data: {
+                labels: map(.date),
+                datasets: [{
+                  label: "Users",
+                  data: map(.count),
+                  fill: false,
+                  borderColor: "blue"
+                }]
+              },
+              options: {
+                scales: {
+                  x: { title: { display: true, text: "Date" } },
+                  y: { title: { display: true, text: "User Count" }, beginAtZero: true }
+                }
+              }
+            }
+          ' user-stats.json > chart-config.json
+
+          # URL encode config for embedding in QuickChart URL
+          CONFIG=$(cat chart-config.json | jq -sRr @uri)
+          echo "config=$CONFIG" >> $GITHUB_OUTPUT
+
+      - name: Update README.md with user count and chart config
+        run: |
+          sed -i "s/<USER_COUNT_PLACEHOLDER>/${{ steps.get_count.outputs.count }}/" README.md
+          sed -i "s|<CHART_CONFIG_PLACEHOLDER>|${{ steps.gen_chart_config.outputs.config }}|" README.md
 
       - name: Commit changes
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git commit -am "Update user count to ${{ steps.get_count.outputs.count }}" || echo "No changes"
+          git add README.md user-stats.json
+          git commit -m "Update user count to ${{ steps.get_count.outputs.count }} and update chart config" || echo "No changes to commit"
           git push
