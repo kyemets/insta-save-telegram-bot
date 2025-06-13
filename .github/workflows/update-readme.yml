@@ -4,6 +4,7 @@ on:
   workflow_dispatch:
   schedule:
     - cron: '0 0 * * *'
+
 jobs:
   update-readme:
     runs-on: ubuntu-latest
@@ -20,18 +21,25 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Run script and save count
+      - name: Run script and get count
         id: get_count
         env:
           MONGO_URI: ${{ secrets.MONGO_URI }}
-        run: echo "COUNT=$(node userCount.js)" >> $GITHUB_ENV
+        run: |
+          COUNT=$(node userCount.js)
+          echo "count=$COUNT" >> $GITHUB_OUTPUT
+          echo "✔ Count: $COUNT"
+
+      - name: Log value
+        run: |
+          echo "✔ User count is: ${{ steps.get_count.outputs.count }}"
 
       - name: Update README.md
-        run: sed -i "s/<USER_COUNT_PLACEHOLDER>/$COUNT/" README.md
+        run: sed -i "s/<USER_COUNT_PLACEHOLDER>/${{ steps.get_count.outputs.count }}/" README.md
 
       - name: Commit changes
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git commit -am "Update user count to $COUNT" || echo "No changes"
+          git commit -am "Update user count to ${{ steps.get_count.outputs.count }}" || echo "No changes"
           git push
