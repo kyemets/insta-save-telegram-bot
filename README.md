@@ -1,6 +1,8 @@
 
 # 📱 [InstaSave](https://t.me/igsavetgbot)
 
+User count: 0
+
 A powerful Telegram bot that allows users to anonymously view Instagram Stories without logging into Instagram. Built with Python, aiogram, and Selenium for reliable story fetching and delivery.
 
 ![Python](https://img.shields.io/badge/python-v3.8+-blue.svg)
