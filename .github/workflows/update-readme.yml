@@ -62,47 +62,7 @@ jobs:
       - name: Generate chart config
         run: |
           set -e
-          
-          jq -c '
-            {
-              type: "line",
-              data: {
-                labels: map(.date),
-                datasets: [{
-                  label: "Users",
-                  data: map(.count),
-                  fill: false,
-                  borderColor: "rgb(54, 162, 235)",
-                  backgroundColor: "rgba(54, 162, 235, 0.2)",
-                  tension: 0.1
-                }]
-              },
-              options: {
-                responsive: true,
-                plugins: {
-                  title: {
-                    display: true,
-                    text: "User Growth Over Time"
-                  }
-                },
-                scales: {
-                  x: { 
-                    title: { 
-                      display: true, 
-                      text: "Date" 
-                    }
-                  },
-                  y: { 
-                    title: { 
-                      display: true, 
-                      text: "User Count" 
-                    }, 
-                    beginAtZero: true 
-                  }
-                }
-              }
-            }
-          ' user-stats.json > chart-config.json
+          jq -c '{type:"line",data:{labels:map(.date),datasets:[{label:"Users",data:map(.count),fill:false,borderColor:"rgb(54, 162, 235)",backgroundColor:"rgba(54, 162, 235, 0.2)",tension:0.1}]},options:{responsive:true,plugins:{title:{display:true,text:"User Growth Over Time"}},scales:{x:{title:{display:true,text:"Date"}},y:{title:{display:true,text:"User Count"},beginAtZero:true}}}}' user-stats.json > chart-config.json
       
       - name: Encode chart config
         id: gen_chart_config
