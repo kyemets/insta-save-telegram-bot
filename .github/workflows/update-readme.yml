@@ -10,7 +10,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}  # Added: Ensure proper permissions for push
+          token: ${{ secrets.GITHUB_TOKEN }}
       
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -25,7 +25,7 @@ jobs:
         env:
           MONGO_URI: ${{ secrets.MONGO_URI }}
         run: |
-          set -e  # Added: Exit on any error
+          set -e
           
           COUNT=$(node userCount.js)
           echo "✔ Count from DB: $COUNT"
@@ -43,7 +43,6 @@ jobs:
             echo "✔ Created empty $STATS_FILE"
           fi
           
-        
           UPDATED_JSON=$(jq --arg date "$TODAY" --argjson count "$COUNT" '
             (map(select(.date == $date)) | length) as $exists
             | if $exists > 0 then
@@ -64,7 +63,6 @@ jobs:
         run: |
           set -e
           
-          # Generate chart configuration
           jq -c '
             {
               type: "line",
@@ -109,20 +107,18 @@ jobs:
       - name: Encode chart config
         id: gen_chart_config
         run: |
-          set -e 
+          set -e
           
-          # URL encode the chart configuration
           CONFIG=$(cat chart-config.json | jq -sRr @uri)
           echo "config=$CONFIG" >> "$GITHUB_OUTPUT"
       
       - name: Update README.md
         run: |
-          set -e  # Added: Exit on any error
+          set -e
           
           COUNT="${{ steps.get_count.outputs.count }}"
           CONFIG="${{ steps.gen_chart_config.outputs.config }}"
           
-   
           if ! grep -q "<USER_COUNT_PLACEHOLDER>" README.md; then
             echo "⚠️ Warning: USER_COUNT_PLACEHOLDER not found in README.md"
           else
@@ -151,17 +147,14 @@ jobs:
       - name: Commit and push changes
         if: steps.check_changes.outputs.has_changes == 'true'
         run: |
-          set -e  # Added: Exit on any error
+          set -e
           
-          # Configure git
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           
-          # Add and commit changes
-          git add README.md user-stats.json chart-config.json 
+          git add README.md user-stats.json chart-config.json
           git commit -m "Update user count to ${{ steps.get_count.outputs.count }} and refresh chart data"
           
-          # Push changes
           git push
           
           echo "✔ Successfully committed and pushed changes"
