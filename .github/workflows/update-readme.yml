@@ -73,26 +73,27 @@ jobs:
           CONFIG=$(cat chart-config.json | jq -sRr @uri)
           echo "config=$CONFIG" >> "$GITHUB_OUTPUT"
       
-      - name: Update README.md
+      - name: Generate README.md from template
         run: |
           set -e
-          
+
           COUNT="${{ steps.get_count.outputs.count }}"
           CONFIG="${{ steps.gen_chart_config.outputs.config }}"
-          
-          if ! grep -q "<USER_COUNT_PLACEHOLDER>" README.md; then
-            echo "⚠️ Warning: USER_COUNT_PLACEHOLDER not found in README.md"
-          else
-            sed -i "s|<USER_COUNT_PLACEHOLDER>|$COUNT|g" README.md
-            echo "✔ Updated user count placeholder"
+
+          TEMPLATE_FILE="README.template.md"
+          OUTPUT_FILE="README.md"
+
+          if [ ! -f "$TEMPLATE_FILE" ]; then
+            echo "❌ $TEMPLATE_FILE not found"
+            exit 1
           fi
-          
-          if ! grep -q "<CHART_CONFIG_PLACEHOLDER>" README.md; then
-            echo "⚠️ Warning: CHART_CONFIG_PLACEHOLDER not found in README.md"
-          else
-            sed -i "s|<CHART_CONFIG_PLACEHOLDER>|$CONFIG|g" README.md
-            echo "✔ Updated chart config placeholder"
-          fi
+
+          cp "$TEMPLATE_FILE" "$OUTPUT_FILE"
+
+          sed -i "s|<USER_COUNT_PLACEHOLDER>|$COUNT|g" "$OUTPUT_FILE"
+          sed -i "s|<CHART_CONFIG_PLACEHOLDER>|$CONFIG|g" "$OUTPUT_FILE"
+
+          echo "✔ README.md generated from template"
       
       - name: Check for changes
         id: check_changes
