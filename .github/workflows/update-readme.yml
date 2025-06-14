@@ -1,45 +1,49 @@
 name: Update README with user count and graph
-
 on:
   workflow_dispatch:
   schedule:
     - cron: '0 0 * * *'
-
 jobs:
   update-readme:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
-
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}  # Added: Ensure proper permissions for push
+      
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-
+      
       - name: Install dependencies
         run: npm install
-
+      
       - name: Run script and get count, update user-stats.json
         id: get_count
         env:
           MONGO_URI: ${{ secrets.MONGO_URI }}
         run: |
-          # Get count from DB via Node.js script
+          set -e  # Added: Exit on any error
+          
           COUNT=$(node userCount.js)
           echo "✔ Count from DB: $COUNT"
-
+          
+          if ! [[ "$COUNT" =~ ^[0-9]+$ ]]; then
+            echo "❌ Error: COUNT is not a valid number: $COUNT"
+            exit 1
+          fi
+          
           STATS_FILE=user-stats.json
           TODAY=$(date +'%Y-%m-%d')
-
-          # Create file if missing
+          
           if [ ! -f "$STATS_FILE" ]; then
             echo "[]" > "$STATS_FILE"
             echo "✔ Created empty $STATS_FILE"
           fi
-
-          # Update or add today's entry
+          
+        
           UPDATED_JSON=$(jq --arg date "$TODAY" --argjson count "$COUNT" '
             (map(select(.date == $date)) | length) as $exists
             | if $exists > 0 then
@@ -48,21 +52,19 @@ jobs:
                 . + [{date: $date, count: $count}]
               end
           ' "$STATS_FILE")
-
+          
           echo "$UPDATED_JSON" > "$STATS_FILE"
           echo "✔ Updated $STATS_FILE with today's count"
-
-          # Export count for next steps
-          echo "count=$COUNT" >> $GITHUB_OUTPUT
-
+          echo "count=$COUNT" >> "$GITHUB_OUTPUT"
+      
       - name: Log value
+        run: echo "✔ User count is: ${{ steps.get_count.outputs.count }}"
+      
+      - name: Generate chart config
         run: |
-          echo "✔ User count is: ${{ steps.get_count.outputs.count }}"
-
-      - name: Generate QuickChart config and URL encode
-        id: gen_chart_config
-        run: |
-          # Create QuickChart config JSON from user-stats.json
+          set -e
+          
+          # Generate chart configuration
           jq -c '
             {
               type: "line",
@@ -72,31 +74,101 @@ jobs:
                   label: "Users",
                   data: map(.count),
                   fill: false,
-                  borderColor: "blue"
+                  borderColor: "rgb(54, 162, 235)",
+                  backgroundColor: "rgba(54, 162, 235, 0.2)",
+                  tension: 0.1
                 }]
               },
               options: {
+                responsive: true,
+                plugins: {
+                  title: {
+                    display: true,
+                    text: "User Growth Over Time"
+                  }
+                },
                 scales: {
-                  x: { title: { display: true, text: "Date" } },
-                  y: { title: { display: true, text: "User Count" }, beginAtZero: true }
+                  x: { 
+                    title: { 
+                      display: true, 
+                      text: "Date" 
+                    }
+                  },
+                  y: { 
+                    title: { 
+                      display: true, 
+                      text: "User Count" 
+                    }, 
+                    beginAtZero: true 
+                  }
                 }
               }
             }
           ' user-stats.json > chart-config.json
-
-          # URL encode config for embedding in QuickChart URL
+      
+      - name: Encode chart config
+        id: gen_chart_config
+        run: |
+          set -e 
+          
+          # URL encode the chart configuration
           CONFIG=$(cat chart-config.json | jq -sRr @uri)
-          echo "config=$CONFIG" >> $GITHUB_OUTPUT
-
-      - name: Update README.md with user count and chart config
+          echo "config=$CONFIG" >> "$GITHUB_OUTPUT"
+      
+      - name: Update README.md
         run: |
-          sed -i "s/<USER_COUNT_PLACEHOLDER>/${{ steps.get_count.outputs.count }}/" README.md
-          sed -i "s|<CHART_CONFIG_PLACEHOLDER>|${{ steps.gen_chart_config.outputs.config }}|" README.md
-
-      - name: Commit changes
+          set -e  # Added: Exit on any error
+          
+          COUNT="${{ steps.get_count.outputs.count }}"
+          CONFIG="${{ steps.gen_chart_config.outputs.config }}"
+          
+   
+          if ! grep -q "<USER_COUNT_PLACEHOLDER>" README.md; then
+            echo "⚠️ Warning: USER_COUNT_PLACEHOLDER not found in README.md"
+          else
+            sed -i "s|<USER_COUNT_PLACEHOLDER>|$COUNT|g" README.md
+            echo "✔ Updated user count placeholder"
+          fi
+          
+          if ! grep -q "<CHART_CONFIG_PLACEHOLDER>" README.md; then
+            echo "⚠️ Warning: CHART_CONFIG_PLACEHOLDER not found in README.md"
+          else
+            sed -i "s|<CHART_CONFIG_PLACEHOLDER>|$CONFIG|g" README.md
+            echo "✔ Updated chart config placeholder"
+          fi
+      
+      - name: Check for changes
+        id: check_changes
         run: |
+          if git diff --quiet; then
+            echo "No changes detected"
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "Changes detected"
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+          fi
+      
+      - name: Commit and push changes
+        if: steps.check_changes.outputs.has_changes == 'true'
+        run: |
+          set -e  # Added: Exit on any error
+          
+          # Configure git
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add README.md user-stats.json
-          git commit -m "Update user count to ${{ steps.get_count.outputs.count }} and update chart config" || echo "No changes to commit"
+          
+          # Add and commit changes
+          git add README.md user-stats.json chart-config.json 
+          git commit -m "Update user count to ${{ steps.get_count.outputs.count }} and refresh chart data"
+          
+          # Push changes
           git push
+          
+          echo "✔ Successfully committed and pushed changes"
+      
+      - name: Summary
+        run: |
+          echo "📊 Workflow Summary:"
+          echo "- User Count: ${{ steps.get_count.outputs.count }}"
+          echo "- Changes Made: ${{ steps.check_changes.outputs.has_changes }}"
+          echo "- Date: $(date +'%Y-%m-%d %H:%M:%S UTC')"
