@@ -57,7 +57,8 @@ jobs:
           echo "count=$COUNT" >> "$GITHUB_OUTPUT"
       
       - name: Log value
-        run: echo "✔ User count is: ${{ steps.get_count.outputs.count }}"
+        run: |
+          echo "✔ User count is: ${{ steps.get_count.outputs.count }}"
       
       - name: Generate chart config
         run: |
