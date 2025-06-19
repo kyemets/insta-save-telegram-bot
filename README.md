@@ -1,10 +1,10 @@
 # 📱 [InstaSave](https://t.me/igsavetgbot)
 
-## User count: 131
+## User count: 133
 
 ## 📈 User Growth
 
-![User Chart](https://quickchart.io/chart?c=%7B%22type%22%3A%22line%22%2C%22data%22%3A%7B%22labels%22%3A%5B%222025-06-13%22%2C%222025-06-14%22%2C%222025-06-15%22%2C%222025-06-16%22%2C%222025-06-17%22%2C%222025-06-18%22%2C%222025-06-19%22%5D%2C%22datasets%22%3A%5B%7B%22label%22%3A%22Users%22%2C%22data%22%3A%5B70%2C79%2C86%2C96%2C108%2C116%2C131%5D%2C%22fill%22%3Afalse%2C%22borderColor%22%3A%22rgb%2854%2C%20162%2C%20235%29%22%2C%22backgroundColor%22%3A%22rgba%2854%2C%20162%2C%20235%2C%200.2%29%22%2C%22tension%22%3A0.1%7D%5D%7D%2C%22options%22%3A%7B%22responsive%22%3Atrue%2C%22plugins%22%3A%7B%22title%22%3A%7B%22display%22%3Atrue%2C%22text%22%3A%22User%20Growth%20Over%20Time%22%7D%7D%2C%22scales%22%3A%7B%22x%22%3A%7B%22title%22%3A%7B%22display%22%3Atrue%2C%22text%22%3A%22Date%22%7D%7D%2C%22y%22%3A%7B%22title%22%3A%7B%22display%22%3Atrue%2C%22text%22%3A%22User%20Count%22%7D%2C%22beginAtZero%22%3Atrue%7D%7D%7D%7D%0A)
+![User Chart](https://quickchart.io/chart?c=%7B%22type%22%3A%22line%22%2C%22data%22%3A%7B%22labels%22%3A%5B%222025-06-13%22%2C%222025-06-14%22%2C%222025-06-15%22%2C%222025-06-16%22%2C%222025-06-17%22%2C%222025-06-18%22%2C%222025-06-19%22%5D%2C%22datasets%22%3A%5B%7B%22label%22%3A%22Users%22%2C%22data%22%3A%5B70%2C79%2C86%2C96%2C108%2C116%2C133%5D%2C%22fill%22%3Afalse%2C%22borderColor%22%3A%22rgb%2854%2C%20162%2C%20235%29%22%2C%22backgroundColor%22%3A%22rgba%2854%2C%20162%2C%20235%2C%200.2%29%22%2C%22tension%22%3A0.1%7D%5D%7D%2C%22options%22%3A%7B%22responsive%22%3Atrue%2C%22plugins%22%3A%7B%22title%22%3A%7B%22display%22%3Atrue%2C%22text%22%3A%22User%20Growth%20Over%20Time%22%7D%7D%2C%22scales%22%3A%7B%22x%22%3A%7B%22title%22%3A%7B%22display%22%3Atrue%2C%22text%22%3A%22Date%22%7D%7D%2C%22y%22%3A%7B%22title%22%3A%7B%22display%22%3Atrue%2C%22text%22%3A%22User%20Count%22%7D%2C%22beginAtZero%22%3Atrue%7D%7D%7D%7D%0A)
 
 
 
