@@ -27,7 +27,7 @@ jobs:
         run: |
           set -e
           
-          COUNT=$(node userCount.js)
+          COUNT=$(node userCount.js | grep -Eo '^[0-9]+$')
           echo "✔ Count from DB: $COUNT"
           
           if ! [[ "$COUNT" =~ ^[0-9]+$ ]]; then
