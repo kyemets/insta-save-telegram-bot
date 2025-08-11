@@ -8,6 +8,11 @@
 
 
 
+> **ℹ️ Update (2025-08-11):** The bot is back online and fully operational.  
+> Thank you for your patience!
+
+![status: online](https://img.shields.io/badge/status-online-brightgreen)
+
 
 
 A powerful Telegram bot that allows users to anonymously view Instagram Stories without logging into Instagram. Built with Python, aiogram, and Selenium for reliable story fetching and delivery.
